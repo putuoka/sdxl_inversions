@@ -73,6 +73,9 @@ class SDXLDDIMPipeline(StableDiffusionXLImg2ImgPipeline):
         original_size: Tuple[int, int] = None,
         crops_coords_top_left: Tuple[int, int] = (0, 0),
         target_size: Tuple[int, int] = None,
+        negative_original_size: Optional[Tuple[int, int]] = None,
+        negative_crops_coords_top_left: Tuple[int, int] = (0, 0),
+        negative_target_size: Optional[Tuple[int, int]] = None,
         aesthetic_score: float = 6.0,
         negative_aesthetic_score: float = 2.5,
     ):
@@ -155,6 +158,11 @@ class SDXLDDIMPipeline(StableDiffusionXLImg2ImgPipeline):
         original_size = original_size or (height, width)
         target_size = target_size or (height, width)
 
+        if negative_original_size is None:
+            negative_original_size = original_size
+        if negative_target_size is None:
+            negative_target_size = target_size
+
         # 8. Prepare added time ids & embeddings
         add_text_embeds = pooled_prompt_embeds
         add_time_ids, add_neg_time_ids = self._get_add_time_ids(
@@ -163,6 +171,9 @@ class SDXLDDIMPipeline(StableDiffusionXLImg2ImgPipeline):
             target_size,
             aesthetic_score,
             negative_aesthetic_score,
+            negative_original_size,
+            negative_crops_coords_top_left,
+            negative_target_size,
             dtype=prompt_embeds.dtype,
         )
         add_time_ids = add_time_ids.repeat(batch_size * num_images_per_prompt, 1)
